@@ -1,0 +1,5 @@
+2025-12-09 15:37:11,657 - INFO - Starting ESRI \u2192 XML \u2192 EFORCE prototype.
+2025-12-09 15:37:11,657 - INFO - Loaded fake ESRI data.
+2025-12-09 15:37:11,658 - INFO - XML built for case 25-22-12309.
+2025-12-09 15:37:11,660 - INFO - [TEMP] Saved XML to: outgoing_xml\25-22-12309.xml
+2025-12-09 15:37:11,660 - INFO - Prototype script finished.

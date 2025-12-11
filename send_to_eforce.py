@@ -111,6 +111,12 @@ if __name__ == "__main__":
     filename = f"{data['case_id']}.xml"
     logging.info(f"XML built for case {data['case_id']}.")
 
+    # Save a test copy of the XML locally for debugging
+    with open("test_output.xml", "wb") as f:
+        f.write(xml_bytes)
+
+    print("Saved test_output.xml for inspection")
+
     # Step 3: Save file locally (SFTP later)
     send_to_sftp(xml_bytes, filename)
 

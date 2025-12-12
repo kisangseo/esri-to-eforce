@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from xml_builder import build_event_xml
-data = payload
 import logging
 import os
 import requests
@@ -47,7 +46,7 @@ def esri_webhook():
     # ------------------------------
     payload = request.get_json(silent=True) or {}
     logging.info(f"Webhook received payload: {payload}")
-    return jsonify({"status": "ok", "keys": list(payload.keys())}), 200
+    
 
     # ESRI webhook *may* provide an objectId or featureId
     feature_id = (
@@ -61,7 +60,7 @@ def esri_webhook():
     # ------------------------------------------------------
     # Convert ESRI → XML
     # ------------------------------------------------------
-    xml_bytes = build_event_xml(data)
+    xml_bytes = build_event_xml(payload)
 
     # IMPORTANT:
     # Now saving using the **Event Number** field from your XML mapping

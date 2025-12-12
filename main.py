@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
+from xml_builder import build_event_xml
+data = payload
 import logging
 import os
 import requests
 
-from xml_builder import build_event_xml, get_fake_esri_data
+
 from sftp_sender import send_to_sftp
 
 ESRI_LAYER_URL = (
@@ -45,6 +47,7 @@ def esri_webhook():
     # ------------------------------
     payload = request.get_json(silent=True) or {}
     logging.info(f"Webhook received payload: {payload}")
+    return jsonify({"status": "ok", "keys": list(payload.keys())}), 200
 
     # ESRI webhook *may* provide an objectId or featureId
     feature_id = (
@@ -53,14 +56,7 @@ def esri_webhook():
         or None
     )
 
-    if not feature_id:
-        logging.warning("No feature ID found – using fake ESRI data.")
-        data = get_fake_esri_data()
-    else:
-        logging.info(f"Feature ID received: {feature_id}")
-
-        # TODO: Replace with real REST call after Luke provides final schema.
-        data = get_fake_esri_data()
+    
 
     # ------------------------------------------------------
     # Convert ESRI → XML

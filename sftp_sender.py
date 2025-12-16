@@ -1,20 +1,25 @@
 import os
-import logging
+import paramiko
+from io import BytesIO
 
-def send_to_sftp(xml_bytes, filename):
-    folder = "outgoing_xml"
 
-    if not os.path.exists(folder):
-        os.mkdir(folder)
+def send_xml_to_eforce(xml_bytes: bytes, filename: str):
+    host = os.getenv("EFORCE_SFTP_HOST")
+    user = os.getenv("EFORCE_SFTP_USER")
+    password = os.getenv("EFORCE_SFTP_PASSWORD")
+    port = int(os.getenv("EFORCE_SFTP_PORT", "22"))
 
-    local_path = os.path.join(folder, filename)
+    if not all([host, user, password]):
+        raise RuntimeError("Missing EFORCE SFTP environment variables")
 
-    try:
-        with open(local_path, "wb") as f:
-            f.write(xml_bytes)
+    transport = paramiko.Transport((host, port))
+    transport.connect(username=user, password=password)
 
-        logging.info(f"[TEMP] Saved XML to: {local_path}")
-        return True
-    except Exception as e:
-        logging.error(f"ERROR saving XML locally: {e}")
-        return False
+    sftp = paramiko.SFTPClient.from_transport(transport)
+
+    # Upload to root directory unless EFORCE specifies otherwise
+    with sftp.file(filename, "wb") as remote_file:
+        remote_file.write(xml_bytes)
+
+    sftp.close()
+    transport.close()

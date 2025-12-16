@@ -5,7 +5,7 @@ import os
 import requests
 
 from xml_builder import build_event_xml
-from sftp_sender import send_to_sftp
+from sftp_sender import send_xml_to_eforce
 
 app = Flask(__name__)
 ESRI_LAYER_URL = "https://services.arcgis.com/njFNhDsUCentVYJW/arcgis/rest/services/service_000dd40ddcd24144b9eb6b31a68ff15e/FeatureServer/0"

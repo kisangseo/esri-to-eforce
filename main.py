@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from db import insert_esri_event
 import logging
 import os
 import requests
@@ -42,6 +43,8 @@ def esri_webhook():
     payload = request.get_json(silent=True) or {}
     data = payload
     logging.info(f"Webhook received payload: {payload}")
+    insert_esri_event(data)
+
 
     feature_id = payload.get("featureId") or payload.get("objectId")
 

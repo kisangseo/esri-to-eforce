@@ -64,14 +64,21 @@ def esri_webhook():
     logging.info("XML successfully generated")
 
     # -----------------------------
-    # Send XML to EFORCE via SFTP
+    # Conditional send to EFORCE
     # -----------------------------
     filename = "esri_event.xml"
 
-    send_to_sftp(xml_data, filename)
+    report_flag = data.get("Will There Be An Additional Report?")
 
-    logging.info("XML successfully sent to SFTP")
+    if report_flag == "Yes":
+        send_xml_to_eforce(xml_data, filename)
+        logging.info("Report flag YES — XML sent to EFORCE")
+    else:
+        logging.info(
+            f"Report flag not YES ({report_flag}) — skipping EFORCE send"
+        )
 
     return jsonify({"status": "ok"}), 200
+
 
 

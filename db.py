@@ -24,7 +24,7 @@ def insert_esri_event(data: dict) -> None:
     arrival_time = data.get("Arrival Time")
     clear_time = data.get("Clear Time")
     logging.info(f"ESRI payload keys: {list(data.keys())}")
-    name = data.get("deputy_name")
+    name = data.get("name")
 
     event_number = data.get("Event Number")
     event_status = data.get("Event Status")

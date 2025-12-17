@@ -62,6 +62,21 @@ def esri_webhook():
     xml_data = build_event_xml(data)
 
     logging.info("XML successfully generated")
+    # -----------------------------
+    # Save XML locally for audit/debug
+    # -----------------------------
+    xml_dir = "/home/site/wwwroot/xml_out"
+    os.makedirs(xml_dir, exist_ok=True)
+
+    event_number = data.get("Event Number", "unknown_event")
+
+    filename = f"esri_{event_number}.xml"
+    file_path = os.path.join(xml_dir, filename)
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(xml_data)
+
+    logging.info(f"XML saved to {file_path}")
 
     # -----------------------------
     # Conditional send to EFORCE

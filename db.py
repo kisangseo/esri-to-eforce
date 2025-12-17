@@ -30,6 +30,7 @@ def insert_esri_event(data: dict) -> None:
     event_status = data.get("Event Status")
     activity_type = data.get("Activity Type")
     notes = data.get("Notes or Narrative")
+    radio_id = data.get("radio_id")
 
     address = data.get("Address (address.Address)")
     city = data.get("City (address.City)")
@@ -49,13 +50,13 @@ def insert_esri_event(data: dict) -> None:
         event_status, activity_type, notes_or_narrative,
         address, city, state, postal_code,
         bwc_recording, force_used, additional_report,
-        raw_payload
+        raw_payload, radio_id
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """
 
     params = (
-        event_number, name, 
+        event_number, name, radio_id, 
         arrival_time, clear_time,
         event_status, activity_type, notes,
         address, city, state, postal_code,

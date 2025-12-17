@@ -23,7 +23,7 @@ def insert_esri_event(data: dict) -> None:
     # --- Map ESRI payload fields (store exactly what ESRI gives you) ---
     arrival_time = data.get("Arrival Time")
     clear_time = data.get("Clear Time")
-    deputy_name = data.get("Deputy Name") or data.get("deputy_name")
+    name = data.get("deputy_name")
 
     event_number = data.get("Event Number")
     event_status = data.get("Event Status")
@@ -43,18 +43,18 @@ def insert_esri_event(data: dict) -> None:
 
     sql = """
     INSERT INTO esri_events (
-        event_number,
+        event_number, name,
         arrival_time, clear_time,
         event_status, activity_type, notes_or_narrative,
         address, city, state, postal_code,
         bwc_recording, force_used, additional_report,
         raw_payload
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """
 
     params = (
-        event_number,
+        event_number, name, 
         arrival_time, clear_time,
         event_status, activity_type, notes,
         address, city, state, postal_code,

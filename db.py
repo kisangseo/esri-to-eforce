@@ -32,7 +32,11 @@ def insert_esri_event(data: dict) -> None:
     notes = data.get("Notes or Narrative")
     radio_id = data.get("radio_id")
 
-    address = data.get("Address (address.Address)")
+    address = (
+        data.get("Address (address.Address)")
+        or data.get("Block Number")
+        
+    )
     city = data.get("City (address.City)")
     state = data.get("Region (address.Region)")
     postal_code = data.get("Postal Code (address.Postal)")

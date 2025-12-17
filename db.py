@@ -45,12 +45,12 @@ def insert_esri_event(data: dict) -> None:
 
     sql = """
     INSERT INTO esri_events (
-        event_number, name,
+        event_number, name, radio_id, 
         arrival_time, clear_time,
         event_status, activity_type, notes_or_narrative,
         address, city, state, postal_code,
         bwc_recording, force_used, additional_report,
-        raw_payload, radio_id
+        raw_payload
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """

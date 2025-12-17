@@ -23,6 +23,8 @@ def insert_esri_event(data: dict) -> None:
     # --- Map ESRI payload fields (store exactly what ESRI gives you) ---
     arrival_time = data.get("Arrival Time")
     clear_time = data.get("Clear Time")
+    deputy_name = data.get("Deputy Name") or data.get("deputy_name")
+
     event_number = data.get("Event Number")
     event_status = data.get("Event Status")
     activity_type = data.get("Activity Type")

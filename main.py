@@ -73,7 +73,7 @@ def esri_webhook():
     filename = f"esri_{event_number}.xml"
     file_path = os.path.join(xml_dir, filename)
 
-    with open(file_path, "w", encoding="utf-8") as f:
+    with open(file_path, "wb") as f:
         f.write(xml_data)
 
     logging.info(f"XML saved to {file_path}")

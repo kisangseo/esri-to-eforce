@@ -93,7 +93,7 @@ def esri_webhook():
             f"Report flag not YES ({report_flag}) — skipping EFORCE send"
         )
 
-    return jsonify({"status": "ok"}), 200
+    return jsonify({"status": "ok"}), 200 
 
 
 

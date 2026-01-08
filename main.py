@@ -1,19 +1,14 @@
 from flask import Flask, request, jsonify
-from xml_builder import build_event_xml
-data = payload
+from db import insert_esri_event
 import logging
 import os
 import requests
 
-
-from sftp_sender import send_to_sftp
-
-ESRI_LAYER_URL = (
-    "https://services.arcgis.com/njFNhDsUCentVYJW/arcgis/rest/services/"
-    "service_000dd40ddcd24144b9eb6b31a68ff15e/FeatureServer/0"
-)
+from xml_builder import build_event_xml
+from sftp_sender import send_xml_to_eforce
 
 app = Flask(__name__)
+ESRI_LAYER_URL = "https://services.arcgis.com/njFNhDsUCentVYJW/arcgis/rest/services/service_000dd40ddcd24144b9eb6b31a68ff15e/FeatureServer/0"
 
 # Configure logging (printed to Azure logs)
 logging.basicConfig(
@@ -46,49 +41,59 @@ def esri_webhook():
     # Parse incoming JSON
     # ------------------------------
     payload = request.get_json(silent=True) or {}
+    data = payload
     logging.info(f"Webhook received payload: {payload}")
-    return jsonify({"status": "ok", "keys": list(payload.keys())}), 200
-
-    # ESRI webhook *may* provide an objectId or featureId
-    feature_id = (
-        payload.get("featureId")
-        or payload.get("objectId")
-        or None
-    )
-
-    
-
-    # ------------------------------------------------------
-    # Convert ESRI → XML
-    # ------------------------------------------------------
-    xml_bytes = build_event_xml(data)
-
-    # IMPORTANT:
-    # Now saving using the **Event Number** field from your XML mapping
-    filename = f"{data.get('event_number', 'unknown')}.xml"
-
-    # ------------------------------------------------------
-    # Save a readable XML copy locally (debugging)
-    # ------------------------------------------------------
-    try:
-        with open("test_output.xml", "wb") as f:
-            f.write(xml_bytes)
-        logging.info("test_output.xml saved successfully.")
-    except Exception as e:
-        logging.error(f"Failed to save test_output.xml: {e}")
-
-    # ------------------------------------------------------
-    # Send to SFTP (currently saves locally in outgoing_xml/)
-    # ------------------------------------------------------
-    ok = send_to_sftp(xml_bytes, filename)
-
-    if not ok:
-        logging.error("Failed to save XML file")
-        return jsonify({"error": "failed_to_save_xml"}), 500
-
-    return jsonify({"status": "ok", "saved_as": filename}), 200
+    insert_esri_event(data)
 
 
-# Used only when running locally
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    feature_id = payload.get("featureId") or payload.get("objectId")
+
+    if feature_id:
+        logging.info(f"Feature ID received: {feature_id}")
+    else:
+        logging.warning("No feature ID found – would use fake ESRI data here")
+
+
+
+
+    # -----------------------------
+    # Build XML from payload
+    # -----------------------------
+    xml_data = build_event_xml(data)
+
+    logging.info("XML successfully generated")
+    # -----------------------------
+    # Save XML locally for audit/debug
+    # -----------------------------
+    xml_dir = "/home/site/wwwroot/xml_out"
+    os.makedirs(xml_dir, exist_ok=True)
+
+    event_number = data.get("Event Number", "unknown_event")
+
+    filename = f"esri_{event_number}.xml"
+    file_path = os.path.join(xml_dir, filename)
+
+    with open(file_path, "wb") as f:
+        f.write(xml_data)
+
+    logging.info(f"XML saved to {file_path}")
+
+    # -----------------------------
+    # Conditional send to EFORCE
+    # -----------------------------
+    filename = f"esri_{event_number}.xml"
+
+    report_flag = data.get("Will There Be An Additional Report?")
+
+    if report_flag == "Yes":
+        send_xml_to_eforce(xml_data, filename)
+        logging.info("Report flag YES — XML sent to EFORCE")
+    else:
+        logging.info(
+            f"Report flag not YES ({report_flag}) — skipping EFORCE send"
+        )
+
+    return jsonify({"status": "ok"}), 200
+
+
+

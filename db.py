@@ -44,6 +44,13 @@ def insert_esri_event(data: dict) -> None:
     bwc = data.get("Was BWC Recording for the event?")
     force_used = data.get("Force Used or Witnessed?")
     additional_report = data.get("Will There Be An Additional Report?")
+    department_cell = data.get("Department Cell")
+    sequence = data.get("Sequence")
+    email = data.get("email")
+    case_number = data.get("Case Number")
+    civil_respondent = data.get("Civil Respondent")
+    civil_service_disposition = data.get("Civil Process Service Disposition")
+    describe_new_info = data.get("Describe the New Information")
 
     raw_payload = json.dumps(data, ensure_ascii=False)
 
@@ -54,9 +61,10 @@ def insert_esri_event(data: dict) -> None:
         event_status, activity_type, notes_or_narrative,
         address, city, state, postal_code,
         bwc_recording, force_used, additional_report,
+        department_cell, sequence, email, case_number, civil_respondent, civil_service_disposition, describe_new_info,
         raw_payload
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """
 
     params = (
@@ -64,7 +72,7 @@ def insert_esri_event(data: dict) -> None:
         arrival_time, clear_time,
         event_status, activity_type, notes,
         address, city, state, postal_code,
-        bwc, force_used, additional_report,
+        bwc, force_used, additional_report, department_cell, sequence, email, case_number, civil_respondent, civil_service_disposition, describe_new_info,
         raw_payload
     )
 

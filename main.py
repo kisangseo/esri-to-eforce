@@ -81,7 +81,7 @@ def esri_webhook():
     # -----------------------------
     # Conditional send to EFORCE
     # -----------------------------
-    filename = "esri_event.xml"
+    filename = f"esri_{event_number}.xml"
 
     report_flag = data.get("Will There Be An Additional Report?")
 

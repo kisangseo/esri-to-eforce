@@ -82,5 +82,27 @@ class GeneratedEventNumberTests(unittest.TestCase):
         self.assertIsNone(insert_params[1])
 
 
+class BackfillSqlTests(unittest.TestCase):
+    def test_backfill_select_sql_targets_only_missing_order_numbers(self):
+        from scripts.backfill_generated_event_numbers import build_backfill_select_sql
+
+        sql = build_backfill_select_sql("dbo.esri_events", "id").lower()
+
+        self.assertIn("generated_event_number is null", sql)
+        self.assertIn("event_number is null", sql)
+        self.assertIn("%peace order%", sql)
+        self.assertIn("%protective order%", sql)
+
+    def test_backfill_update_sql_uses_key_and_rechecks_eligibility(self):
+        from scripts.backfill_generated_event_numbers import build_backfill_update_sql
+
+        sql = build_backfill_update_sql("dbo.esri_events", "id").lower()
+
+        self.assertIn("set generated_event_number = ?", sql)
+        self.assertIn("where [id] = ?", sql)
+        self.assertIn("generated_event_number is null", sql)
+        self.assertIn("event_number is null", sql)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 import pyodbc
 
 EASTERN_TZ = ZoneInfo("America/New_York")
-GENERATED_EVENT_ACTIVITY_KEYWORDS = ("peace order", "protective order")
+GENERATED_EVENT_ACTIVITY_KEYWORDS = ("peace", "protective")
 MAX_GENERATED_EVENT_SEQUENCE = 99999
 
 
@@ -28,7 +28,7 @@ def _is_blank(value) -> bool:
 
 def should_generate_event_number(data: dict) -> bool:
     """
-    Return True only for Peace Order / Protective Order events that do not
+    Return True only for Peace / Protective order events that do not
     already have an ESRI-provided event number.
     """
     if not _is_blank(data.get("Event Number")):

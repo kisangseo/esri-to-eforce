@@ -3,7 +3,7 @@
 This script updates only rows in dbo.esri_events where:
 - generated_event_number is NULL
 - event_number is NULL/blank
-- activity_type contains "peace order" or "protective order"
+- activity_type contains "peace" or "protective"
 
 It uses the same allocator as live webhook ingestion so the existing monthly
 sequence table remains the source of truth.
@@ -84,8 +84,8 @@ def build_backfill_select_sql(table_name: str, key_column: str) -> str:
     WHERE generated_event_number IS NULL
         AND (event_number IS NULL OR LTRIM(RTRIM(event_number)) = '')
         AND (
-            LOWER(COALESCE(activity_type, '')) LIKE '%peace order%'
-            OR LOWER(COALESCE(activity_type, '')) LIKE '%protective order%'
+            LOWER(COALESCE(activity_type, '')) LIKE '%peace%'
+            OR LOWER(COALESCE(activity_type, '')) LIKE '%protective%'
         )
     ORDER BY arrival_time, {key};
     """
@@ -101,8 +101,8 @@ def build_backfill_update_sql(table_name: str, key_column: str) -> str:
             AND generated_event_number IS NULL
             AND (event_number IS NULL OR LTRIM(RTRIM(event_number)) = '')
             AND (
-                LOWER(COALESCE(activity_type, '')) LIKE '%peace order%'
-                OR LOWER(COALESCE(activity_type, '')) LIKE '%protective order%'
+                LOWER(COALESCE(activity_type, '')) LIKE '%peace%'
+                OR LOWER(COALESCE(activity_type, '')) LIKE '%protective%'
             );
     """
 

@@ -10,10 +10,24 @@ import db
 
 
 class GeneratedEventNumberTests(unittest.TestCase):
-    def test_should_generate_for_blank_peace_order(self):
+    def test_should_generate_for_blank_peace_activity(self):
+        self.assertTrue(
+            db.should_generate_event_number(
+                {"Event Number": "  ", "Activity Type": "Peace"}
+            )
+        )
+
+    def test_should_generate_for_blank_peace_order_activity(self):
         self.assertTrue(
             db.should_generate_event_number(
                 {"Event Number": "  ", "Activity Type": "Peace Order Service"}
+            )
+        )
+
+    def test_should_generate_for_blank_protective_type(self):
+        self.assertTrue(
+            db.should_generate_event_number(
+                {"Event Number": None, "Type": "Protective"}
             )
         )
 
@@ -90,8 +104,8 @@ class BackfillSqlTests(unittest.TestCase):
 
         self.assertIn("generated_event_number is null", sql)
         self.assertIn("event_number is null", sql)
-        self.assertIn("%peace order%", sql)
-        self.assertIn("%protective order%", sql)
+        self.assertIn("%peace%", sql)
+        self.assertIn("%protective%", sql)
 
     def test_backfill_update_sql_uses_key_and_rechecks_eligibility(self):
         from scripts.backfill_generated_event_numbers import build_backfill_update_sql

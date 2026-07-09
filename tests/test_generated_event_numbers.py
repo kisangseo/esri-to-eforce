@@ -103,6 +103,32 @@ class BackfillSqlTests(unittest.TestCase):
         self.assertIn("generated_event_number is null", sql)
         self.assertIn("event_number is null", sql)
 
+    def test_connection_string_env_can_use_custom_variable(self):
+        import os
+        from scripts.backfill_generated_event_numbers import apply_connection_string_env
+
+        original_default = os.environ.get("AZURE_SQL_CONNECTION_STRING")
+        original_custom = os.environ.get("LOCAL_SQL_CONNECTION_STRING")
+        try:
+            os.environ.pop("AZURE_SQL_CONNECTION_STRING", None)
+            os.environ["LOCAL_SQL_CONNECTION_STRING"] = "Driver={ODBC Driver 18 for SQL Server};Server=test;"
+
+            apply_connection_string_env("LOCAL_SQL_CONNECTION_STRING")
+
+            self.assertEqual(
+                os.environ["AZURE_SQL_CONNECTION_STRING"],
+                "Driver={ODBC Driver 18 for SQL Server};Server=test;",
+            )
+        finally:
+            if original_default is None:
+                os.environ.pop("AZURE_SQL_CONNECTION_STRING", None)
+            else:
+                os.environ["AZURE_SQL_CONNECTION_STRING"] = original_default
+            if original_custom is None:
+                os.environ.pop("LOCAL_SQL_CONNECTION_STRING", None)
+            else:
+                os.environ["LOCAL_SQL_CONNECTION_STRING"] = original_custom
+
 
 if __name__ == "__main__":
     unittest.main()

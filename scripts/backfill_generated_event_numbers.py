@@ -11,6 +11,7 @@ sequence table remains the source of truth.
 
 import argparse
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -23,6 +24,7 @@ from db import allocate_generated_event_number, get_conn
 DEFAULT_TABLE = "dbo.esri_events"
 DEFAULT_SEQUENCE_TABLE = "dbo.daily_log_event_number_sequences"
 DEFAULT_BATCH_SIZE = 500
+DEFAULT_CONNECTION_STRING_ENV = "AZURE_SQL_CONNECTION_STRING"
 
 
 def _quote_identifier_part(identifier: str) -> str:
@@ -160,6 +162,21 @@ def backfill_generated_event_numbers(batch_size: int, key_column: str | None, dr
     return total_updated
 
 
+def apply_connection_string_env(connection_string_env: str) -> None:
+    """Allow one-off runs to use a differently named local connection-string variable."""
+    if connection_string_env == DEFAULT_CONNECTION_STRING_ENV:
+        return
+
+    connection_string = os.environ.get(connection_string_env)
+    if not connection_string:
+        raise RuntimeError(
+            f"Environment variable {connection_string_env!r} is not set. "
+            f"Set it first or pass a different --connection-string-env value."
+        )
+
+    os.environ[DEFAULT_CONNECTION_STRING_ENV] = connection_string
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Backfill dbo.esri_events.generated_event_number for existing Peace/Protective Order rows."
@@ -179,6 +196,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         action="store_true",
         help="Allocate and log candidate numbers, then roll back without updating rows.",
     )
+    parser.add_argument(
+        "--connection-string-env",
+        default=DEFAULT_CONNECTION_STRING_ENV,
+        help=(
+            "Environment variable that contains the Azure SQL connection string. "
+            f"Default: {DEFAULT_CONNECTION_STRING_ENV}"
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -188,6 +213,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.batch_size < 1:
         raise ValueError("--batch-size must be at least 1")
+
+    apply_connection_string_env(args.connection_string_env)
 
     updated = backfill_generated_event_numbers(
         batch_size=args.batch_size,

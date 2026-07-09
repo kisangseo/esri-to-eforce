@@ -12,6 +12,11 @@ sequence table remains the source of truth.
 import argparse
 import logging
 import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from db import allocate_generated_event_number, get_conn
 
